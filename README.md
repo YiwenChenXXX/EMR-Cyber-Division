@@ -4,8 +4,8 @@
 **Emergency Data System**
 
 ## Team Members
-- Joshua Wilson
 - Yiwen Chen
+- Joshua Wilson
 - Benjamin Mason
 
 ---
