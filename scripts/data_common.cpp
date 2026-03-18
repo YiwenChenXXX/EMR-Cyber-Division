@@ -34,3 +34,21 @@ string toCSVRow(const Report& r) {
            to_string(r.severity) + "," +
            r.category + "\n";
 }
+
+bool parseReportCSV(const std::string& line, Report& out) {
+    auto p = splitCSV(line);
+    if (p.size() != 5){
+        return false;
+    }
+    try{
+        out.report_id = stoi(p[0]);
+        out.source_id = stoi(p[1]);
+        out.timestamp = stoll(p[2]);
+        out.severity  = stoi(p[3]);
+        out.category  = p[4];
+        return true;
+    } 
+    catch (...){
+        return false;
+    }
+}
