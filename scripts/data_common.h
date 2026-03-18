@@ -9,9 +9,9 @@ struct Report{
   long long timestamp;
   int severity; // from 1 to 10
   std::string category;  // e.g., medical/fire/flood/rescue/power
-  Report* parent;
-  Report* child;
-  Report* sibling;
+  Report* parent = nullptr;
+  Report* child = nullptr;
+  Report* sibling = nullptr;
 };
 
 vector<string> splitCSV(const string& line);
