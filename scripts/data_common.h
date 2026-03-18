@@ -10,3 +10,9 @@ struct Report{
   int severity; // from 1 to 10
   std::string category;  // e.g., medical/fire/flood/rescue/power
 };
+
+vector<string> splitCSV(const string& line);
+bool isValidCategory(const string& c);
+string csvHeader();
+string toCSVRow(const Report& r);
+bool parseReportCSV(const string& line, Report& out);
