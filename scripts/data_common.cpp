@@ -23,3 +23,14 @@ bool isValidCategory(const string& c) {
     return find(cats.begin(), cats.end(), c) != cats.end();
 }
 
+string csvHeader() {
+    return "report_id,source_id,timestamp,severity,category\n";
+}
+
+string toCSVRow(const Report& r) {
+    return to_string(r.report_id) + "," +
+           to_string(r.source_id) + "," +
+           to_string(r.timestamp) + "," +
+           to_string(r.severity) + "," +
+           r.category + "\n";
+}
