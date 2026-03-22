@@ -1,0 +1,4 @@
+build/
+bin/
+data/generated/
+.DS_Store
