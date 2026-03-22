@@ -8,13 +8,7 @@ struct Report{
   int source_id;
   long long timestamp;
   int severity; // from 1 to 10
-  std::string category;  // e.g., medical/fire/flood/rescue/power
- 
-  //Specific to Binomial Max Heap Implementation
-  Report* parent = nullptr;
-  Report* child = nullptr;
-  Report* sibling = nullptr;
-  int degree = 0; 
+  string category;  // e.g., medical/fire/flood/rescue/power
 };
 
 vector<string> splitCSV(const string& line);
