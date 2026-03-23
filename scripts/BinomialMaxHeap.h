@@ -1,6 +1,4 @@
-//
-// Created by wilso on 3/21/2026.
-//
+
 
 #ifndef COP3530_PROJECT2_BINOMIALMAXHEAP_H
 #define COP3530_PROJECT2_BINOMIALMAXHEAP_H
