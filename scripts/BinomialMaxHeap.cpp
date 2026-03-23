@@ -19,7 +19,9 @@ void BinomialMaxHeap::insert(int severity) {
 }
 
 Report* BinomialMaxHeap::findMax() {
-
+    if (head == nullptr){
+        return nullptr;
+    }
     Report* current = head;
     Report* maxNode = head;
 
@@ -35,28 +37,56 @@ Report* BinomialMaxHeap::findMax() {
 
 Report* BinomialMaxHeap::extractMax()
 {
+    if (head == nullptr){
+        return nullptr;
+    }
     Report* current = head;
     Report* maxNode = head;
     Report* prevMax = nullptr;
+    Report* prev = nullptr;
 
     //Find the max
     while (current != nullptr) {
         if (current->severity > maxNode->severity) {
             maxNode = current;
+            prevMax = prev;   // THIS is the key line
         }
-        prevMax = current;
+
+        prev = current;
         current = current->sibling;
     }
 
     //Unlink the max from the list
-    if (maxNode != head)
-    {
-     prevMax->sibling = maxNode->sibling;
+    if (maxNode == head) {
+        head = maxNode->sibling;
+    } else {
+        prevMax->sibling = maxNode->sibling;
     }
-    
+
+    //Reverse list
+    current = maxNode->child;
+    Report* next;
+    prev = nullptr;
+
+    while (current != nullptr)
+    {
+        next = current->sibling;
+
+        current->parent = nullptr;
+        current->sibling = prev;
+
+        prev = current;
+        current = next;
+    }
+
+    maxNode->child = nullptr;
+
+    head = mergeHeaps(head, prev);
+    unionHeaps();
 
 
 
+    return maxNode;
 }
 
 Report* BinomialMaxHeap::mergeHeaps(Report* current, Report* next)
@@ -69,29 +99,45 @@ Report* BinomialMaxHeap::mergeHeaps(Report* current, Report* next)
     while (current != nullptr && next != nullptr)
     {
         if (current->degree <= next->degree) {
-            // attach current
+
+            Report* temp = current;           // save node
+            current = current->sibling;       // move forward
+            temp->sibling = nullptr;          // detach
+
             if (head == nullptr) {
-                head = current;
-                tail = current;
+                head = temp;
+                tail = temp;
             } else {
-                tail->sibling = current;
-                tail = current;
+                tail->sibling = temp;         // attach
+                tail = temp;
             }
 
-            current = current->sibling;
         } else {
-            //attach next
-            if (head == nullptr) {
-                head = next;
-                tail = next;
-            } else {
-                tail->sibling = next;
-                tail = current;
-            }
 
-            next = next->sibling;
+            Report* temp = next;              // save node
+            next = next->sibling;             // move forward
+            temp->sibling = nullptr;          // detach
+
+            if (head == nullptr) {
+                head = temp;
+                tail = temp;
+            } else {
+                tail->sibling = temp;         // attach
+                tail = temp;
+            }
         }
     }
+    if (tail == nullptr)
+    {
+        if (current != nullptr)
+        {
+            return current;
+        } else
+        {
+            return next;
+        }
+    }
+
     if (current != nullptr)
     {
         tail->sibling = current;
@@ -104,7 +150,10 @@ Report* BinomialMaxHeap::mergeHeaps(Report* current, Report* next)
 }
 
 void BinomialMaxHeap::unionHeaps() {
-
+    if (head == nullptr)
+    {
+        return;
+    }
     Report* current = head;
     Report* prev = nullptr;
     Report* next = current->sibling;
