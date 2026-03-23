@@ -1,6 +1,4 @@
-//
-// Created by wilso on 3/21/2026.
-//
+
 #include "BinomialMaxHeap.h"
 
 using namespace std;
