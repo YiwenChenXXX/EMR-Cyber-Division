@@ -31,7 +31,10 @@ public:
 
     void linkTrees(Report* a, Report* b) {
         if (a->severity > b->severity)
+        {
             std::swap(a, b);
+        }
+
 
         a->parent = b;
         a->sibling = b->child;
