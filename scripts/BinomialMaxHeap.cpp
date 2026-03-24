@@ -1,189 +1,164 @@
-
 #include "BinomialMaxHeap.h"
 
 using namespace std;
 
+bool BinomialMaxHeap::higherPriority(const Report& a, const Report& b) {
+    if (a.severity != b.severity) return a.severity > b.severity;
+    return a.timestamp < b.timestamp;
+}
 
 void BinomialMaxHeap::insert(int severity) {
+    Report r;
+    r.report_id = 0;
+    r.source_id = 0;
+    r.timestamp = 0;
+    r.severity = severity;
+    r.category = "medical";
+    insert(r);
+}
 
-    Report* newNode = new Report;
-    newNode->severity = severity;
-
+void BinomialMaxHeap::insert(const Report& report) {
+    Node* newNode = new Node(report);
     BinomialMaxHeap tempHeap;
     tempHeap.head = newNode;
-
     head = mergeHeaps(head, tempHeap.head);
     unionHeaps();
 }
 
-Report* BinomialMaxHeap::findMax() {
+Report BinomialMaxHeap::findMax() {
+    Report dummy{};
+    dummy.severity = -1;
     if (head == nullptr){
-        return nullptr;
+        return dummy;
     }
-    Report* current = head;
-    Report* maxNode = head;
-
+    Node* current = head;
+    Node* maxNode = head;
     while (current != nullptr) {
-        if (current->severity > maxNode->severity) {
+        if (higherPriority(current->key, maxNode->key)) {
             maxNode = current;
         }
         current = current->sibling;
     }
-
-    return maxNode;
+    return maxNode->key;
 }
 
-Report* BinomialMaxHeap::extractMax()
-{
+Report BinomialMaxHeap::extractMax() {
+    Report dummy{};
+    dummy.severity = -1;
     if (head == nullptr){
-        return nullptr;
+        return dummy;
     }
-    Report* current = head;
-    Report* maxNode = head;
-    Report* prevMax = nullptr;
-    Report* prev = nullptr;
-
-    //Find the max
+    Node* current = head;
+    Node* maxNode = head;
+    Node* prevMax = nullptr;
+    Node* prev = nullptr;
     while (current != nullptr) {
-        if (current->severity > maxNode->severity) {
+        if (higherPriority(current->key, maxNode->key)) {
             maxNode = current;
-            prevMax = prev;   // THIS is the key line
+            prevMax = prev;
         }
-
         prev = current;
         current = current->sibling;
     }
-
-    //Unlink the max from the list
+    // unlink maxNode from root list
     if (maxNode == head) {
         head = maxNode->sibling;
-    } else {
+    } 
+    else {
         prevMax->sibling = maxNode->sibling;
     }
-
-    //Reverse list
+    // reverse child list
     current = maxNode->child;
-    Report* next;
+    Node* next;
     prev = nullptr;
-
-    while (current != nullptr)
-    {
+    while (current != nullptr) {
         next = current->sibling;
-
         current->parent = nullptr;
         current->sibling = prev;
-
         prev = current;
         current = next;
     }
-
     maxNode->child = nullptr;
-
     head = mergeHeaps(head, prev);
     unionHeaps();
-
-
-
-    return maxNode;
+    Report ans = maxNode->key;
+    delete maxNode;
+    return ans;
 }
 
-Report* BinomialMaxHeap::mergeHeaps(Report* current, Report* next)
-{
-    if (current == nullptr) return next;
-    if (next == nullptr) return current;
-
-    Report* head = nullptr;
- Report* tail = nullptr;
-    while (current != nullptr && next != nullptr)
-    {
+BinomialMaxHeap::Node* BinomialMaxHeap::mergeHeaps(Node* current, Node* next) {
+    if (current == nullptr){
+        return next;
+    }
+    if (next == nullptr){
+        return current;
+    }
+    Node* newHead = nullptr;
+    Node* tail = nullptr;
+    auto attach = [&](Node* x) {
+        if (newHead == nullptr) {
+            newHead = x;
+            tail = x;
+        } 
+        else {
+            tail->sibling = x;
+            tail = x;
+        }
+    };
+    while (current != nullptr && next != nullptr) {
         if (current->degree <= next->degree) {
-
-            Report* temp = current;           // save node
-            current = current->sibling;       // move forward
-            temp->sibling = nullptr;          // detach
-
-            if (head == nullptr) {
-                head = temp;
-                tail = temp;
-            } else {
-                tail->sibling = temp;         // attach
-                tail = temp;
-            }
-
-        } else {
-
-            Report* temp = next;              // save node
-            next = next->sibling;             // move forward
-            temp->sibling = nullptr;          // detach
-
-            if (head == nullptr) {
-                head = temp;
-                tail = temp;
-            } else {
-                tail->sibling = temp;         // attach
-                tail = temp;
-            }
+            Node* temp = current;
+            current = current->sibling;
+            temp->sibling = nullptr;
+            attach(temp);
+        } 
+        else {
+            Node* temp = next;
+            next = next->sibling;
+            temp->sibling = nullptr;
+            attach(temp);
         }
     }
-    if (tail == nullptr)
-    {
-        if (current != nullptr)
-        {
-            return current;
-        } else
-        {
-            return next;
-        }
+    if (tail == nullptr){
+        return (current != nullptr) ? current : next;
     }
-
-    if (current != nullptr)
-    {
-        tail->sibling = current;
-    }else
-    {
-        tail->sibling = next;
-    }
-
-    return head;
+    tail->sibling = (current != nullptr) ? current : next;
+    return newHead;
 }
 
 void BinomialMaxHeap::unionHeaps() {
-    if (head == nullptr)
-    {
+    if (head == nullptr){
         return;
     }
-    Report* current = head;
-    Report* prev = nullptr;
-    Report* next = current->sibling;
-    while (next != nullptr){
+    Node* current = head;
+    Node* prev = nullptr;
+    Node* next = current->sibling;
+    while (next != nullptr) {
         if (current->degree != next->degree) {
             prev = current;
             current = next;
-        }
+        } 
         else if (next->sibling != nullptr && next->sibling->degree == current->degree) {
-            //handle 3 in a row case
             prev = current;
             current = next;
             next = next->sibling;
-        }
+        } 
         else {
-            if (current->severity >= next->severity) {
-                // current stays root
+            if (higherPriority(current->key, next->key)) {
                 current->sibling = next->sibling;
                 linkTrees(next, current);
-            }
+            } 
             else {
-                // next becomes root
-                if (prev == nullptr)
+                if (prev == nullptr){
                     head = next;
-                else
+                }
+                else{
                     prev->sibling = next;
-
+                }
                 linkTrees(current, next);
                 current = next;
             }
         }
         next = current->sibling;
     }
-
 }
