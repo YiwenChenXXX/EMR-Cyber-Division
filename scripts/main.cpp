@@ -47,11 +47,8 @@ int main() {
             long long dropped = 0;
             cout << "Generating dataset..." << endl;
             
-            bool ok1 = generateDatasetCSV("../data/generated/raw.csv", 100000, 50, 42, 0);
-            bool ok2 = cleanDatasetCSV("../data/generated/raw.csv", "../data/generated/clean.csv", 50, kept, dropped);
-
-            cout << "generate: " << ok1 << endl;
-            cout << "clean: " << ok2 << endl;
+            generateDatasetCSV("../data/generated/raw.csv", 100000, 50, 42, 0);
+            cleanDatasetCSV("../data/generated/raw.csv", "../data/generated/clean.csv", 50, kept, dropped);
 
             list.clear();
             
