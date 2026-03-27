@@ -11,20 +11,33 @@
 #include "BinomialMaxHeap.h"
 
 using namespace std;
-using Clock = std::chrono::high_resolution_clock;
+using Clock = chrono::high_resolution_clock;
+
+static bool higherPriority(const Report& a, const Report& b) {
+    if (a.severity != b.severity) {
+        return a.severity > b.severity;
+    }
+    return a.timestamp < b.timestamp;
+}
+
+static bool isValidTriageOrder(const Report& prev, const Report& cur) {
+    return !higherPriority(cur, prev);
+}
 
 int main() {
     
-    ifstream file("clean.csv");
+    ifstream file("data/generated/clean.csv");
 
     vector<Report> list;
     string line;
-    getline(file, line);
+    if (file) {
+        getline(file, line);
 
-    while (getline(file, line)) {
-        Report r;
-        if (parseReportCSV(line, r)) {
-            list.push_back(r);
+        while (getline(file, line)) {
+            Report r;
+            if (parseReportCSV(line, r)) {
+                list.push_back(r);
+            }
         }
     }
     cout << "==================== Emergency Data System ====================" << endl << endl;
@@ -47,12 +60,12 @@ int main() {
             long long dropped = 0;
             cout << "Generating dataset..." << endl;
             
-            generateDatasetCSV("../data/generated/raw.csv", 100000, 50, 42, 0);
-            cleanDatasetCSV("../data/generated/raw.csv", "../data/generated/clean.csv", 50, kept, dropped);
+            generateDatasetCSV("data/generated/raw.csv", 100000, 50, 42, 0);
+            cleanDatasetCSV("data/generated/raw.csv", "data/generated/clean.csv", 50, kept, dropped);
 
             list.clear();
             
-            std::ifstream file("../data/generated/clean.csv");
+            ifstream file("data/generated/clean.csv");
 
             string line; 
 
@@ -77,6 +90,7 @@ int main() {
                 list.push_back(r);
             }
 
+            cout << "Generated " << list.size() << " emergency reports" << endl;
         }
 
         if (choice == 2) {
@@ -97,7 +111,7 @@ int main() {
                 count++;
             }
             auto t2 = Clock::now();
-            auto time = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+            auto time = chrono::duration_cast<chrono::milliseconds>(t2 - t1);
             cout << "Binary Heap processing time: " << time.count() << " ms" << endl;
 
         }
@@ -119,12 +133,15 @@ int main() {
                 count++;
             }
             auto t2 = Clock::now();
-            auto time = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-            cout << "Binary Heap processing time: " << time.count() << " ms" << endl;
+            auto time = chrono::duration_cast<chrono::milliseconds>(t2 - t1);
+            cout << "Binomial Heap processing time: " << time.count() << " ms" << endl;
 
         }
 
         else if (choice == 4) {
+            bool binaryOk = true;
+            bool binomialOk = true;
+
             BinaryMaxHeap heap1;
 
             auto BinaryMaxHeapt1 = Clock::now();
@@ -133,11 +150,20 @@ int main() {
                 heap1.insert(report);
             }
 
+            bool hasPrev = false;
+            Report prevReport;
+
             while (!heap1.isEmpty()) {
                 Report r = heap1.extractMax();
+                if (hasPrev && !isValidTriageOrder(prevReport, r)) {
+                    binaryOk = false;
+                }
+                prevReport = r;
+                hasPrev = true;
             }
+
             auto BinaryMaxHeapt2 = Clock::now();
-            auto binaryTime = std::chrono::duration_cast<std::chrono::milliseconds>(BinaryMaxHeapt2 - BinaryMaxHeapt1);
+            auto binaryTime = chrono::duration_cast<chrono::milliseconds>(BinaryMaxHeapt2 - BinaryMaxHeapt1);
             cout << "Binary Heap processing time: " << binaryTime.count() << " ms" << endl;
 
             BinomialMaxHeap heap2;
@@ -148,14 +174,27 @@ int main() {
                 heap2.insert(report);
             }
 
+            hasPrev = false;
+
             while (!heap2.isEmpty()) {
                 Report r = heap2.extractMax();
+                if (hasPrev && !isValidTriageOrder(prevReport, r)) {
+                    binomialOk = false;
+                }
+                prevReport = r;
+                hasPrev = true;
             }
+
             auto BinomialMaxHeapt2 = Clock::now();
-            auto binomialTime = std::chrono::duration_cast<std::chrono::milliseconds>(BinomialMaxHeapt2 - BinomialMaxHeapt1);
+            auto binomialTime = chrono::duration_cast<chrono::milliseconds>(BinomialMaxHeapt2 - BinomialMaxHeapt1);
             cout << "Binomial Heap processing time: " << binomialTime.count() << " ms" << endl;
 
-            cout << "Correctness check: PASS" << endl;
+            if (binaryOk && binomialOk) {
+                cout << "Correctness check: PASS" << endl;
+            } 
+            else {
+                cout << "Correctness check: FAIL" << endl;
+            }
         }
 
         else if (choice == 0) {
