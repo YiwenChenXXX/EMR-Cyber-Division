@@ -1,5 +1,5 @@
 #pragma once
-#include "data_common.h"
+#include "data_pipeline/data_common.h"
 using namespace std;
 
 class BinaryMaxHeap {
