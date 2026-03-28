@@ -7,13 +7,15 @@
 
 ## How to Run
 From the repository, build and run the UI with the following commands line by line:
+
 Mac:
 ```text
 cmake -S . -B build
 cmake --build build --target emergency_ui
 ./build/emergency_ui
 ```
-Windows
+
+Windows:
 ```text
 cmake -S . -B build
 cmake --build build --target emergency_ui
