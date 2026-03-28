@@ -5,6 +5,21 @@
 - Joshua Wilson
 - Benjamin Mason
 
+## How to Run
+From the repository, build and run the UI with the following commands line by line:
+Mac:
+```text
+cmake -S . -B build
+cmake --build build --target emergency_ui
+./build/emergency_ui
+```
+Windows
+```text
+cmake -S . -B build
+cmake --build build --target emergency_ui
+.\build\emergency_ui.exe
+```
+
 ## Overview
 Emergency management organizations often receive large volumes of reports from many different sources at different times. These reports must be processed and prioritized quickly so that the most urgent cases are handled first.
 
@@ -50,14 +65,6 @@ Priority rule used by both heaps: higher `severity` first, and if tied, earlier 
 - **Language:** C++ (C++17)
 - **Build System:** CMake
 - **Collaboration / Version Control:** GitHub
-
-## How to Run
-From the repository, build and run the UI:
-```text
-cmake -S . -B build
-cmake --build build --target emergency_ui
-./build/emergency_ui
-```
 
 ## System Interface
 The project uses a terminal-based and menu-driven interface for demonstration. The interface supports dataset generation/cleaning, running each heap-based triage, benchmarking both implementations, and exporting benchmark results as csv file.
