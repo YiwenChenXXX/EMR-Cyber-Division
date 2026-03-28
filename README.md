@@ -19,7 +19,7 @@ Windows:
 ```text
 cmake -S . -B build
 cmake --build build --target emergency_ui
-.\build\emergency_ui.exe
+.\build\Debug\emergency_ui.exe 
 ```
 
 ## Overview
